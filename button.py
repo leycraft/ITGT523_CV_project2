@@ -43,11 +43,12 @@ class button:
         cursor_in = False
         output = -1
 
-        for i in cursor_array:
-            if i[0] > self.box_x and i[0] < (self.box_x + self.box_width):
-                if i[1] > self.box_y and i[1] < (self.box_y + self.box_height):
-                    cursor_in = True
-                    break
+        for num, i in enumerate(cursor_array):
+            if num >= 5:
+                if i[0] > self.box_x and i[0] < (self.box_x + self.box_width):
+                    if i[1] > self.box_y and i[1] < (self.box_y + self.box_height):
+                        cursor_in = True
+                        break
                 
         if cursor_in:
             if self.selection_count < self.selection_counter_max:
