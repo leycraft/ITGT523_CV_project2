@@ -49,11 +49,11 @@ deco2 = utilities.read_image_alpha("sprites/deco02.png")
 title = utilities.read_image_alpha("sprites/title_box01.png")
 title_start = button(0, "sprites/ui_box01_small.png")
 
-timer_x = 200
-timer_y = 30
-
 draw_line_width = 5
 draw_line_color = (255, 100, 100)
+
+timer_x = 200
+timer_y = 30
 
 timer_sprite = []
 for i in range(6):
@@ -62,8 +62,31 @@ for i in range(6):
 
     sprite = sprite[0: sprite.shape[0], i * sprite_partition: (i + 1) * sprite_partition, :]
 
-    sprite = cv.resize(sprite, (0, 0), fx = 0.6, fy = 0.6)
+    sprite = cv.resize(sprite, (0, 0), fx = 0.4, fy = 0.4)
     timer_sprite.append(sprite)
+
+thumb_x = 700
+thumb_y = 400
+
+thumb_sprite = []
+thumb_frame_timer = 0
+thumb_frame_timer_max = 5
+for i in range(5):
+    sprite = utilities.read_image_alpha("sprites/thumb.png")
+    sprite_partition = int(sprite.shape[1] / 5)
+
+    sprite = sprite[0: sprite.shape[0], i * sprite_partition: (i + 1) * sprite_partition, :]
+    thumb_sprite.append(sprite)
+
+tip_box = utilities.read_image_alpha("sprites/tip_box.png")
+tip_box = cv.resize(tip_box, (0, 0), fx = 0.9, fy = 0.9)
+feedback_box = utilities.read_image_alpha("sprites/feedback_box.png")
+feedback_box = cv.resize(feedback_box, (0, 0), fx = 0.9, fy = 0.9)
+feedback_bar = utilities.read_image_alpha("sprites/feedback_bar.png")
+feedback_bar = cv.resize(feedback_bar, (0, 0), fx = 2.0, fy = 0.5)
+
+z_button = utilities.read_image_alpha("sprites/z_toggle.png")
+z_button = cv.resize(z_button, (0, 0), fx = 0.3, fy = 0.3)
 
 # functions -------------------------------------
 
@@ -91,11 +114,15 @@ def read_csv_pose(file_name, size_config = 1, xy_mod = (0,0)):
             pose_point.append(keypoint)
 
 
-def read_player_pose(image):
+def read_player_pose(image, scale_factor = 1):
     global player_point
 
     image = cv.cvtColor(image, cv.COLOR_BGRA2BGR)
-    results = model(image)
+
+    if scale_factor != 1:
+        image = cv.resize(image, (0,0), fx = scale_factor, fy = scale_factor)
+        
+    results = model(image, verbose = False, max_det = 1)
     player_point = []
 
     for result in results:
@@ -105,7 +132,7 @@ def read_player_pose(image):
             if num == 0:
                 for i, kp in enumerate(person):
                     if i == 0 or i >= 5:
-                        int_kp = (int(kp[0]), int(kp[1]))
+                        int_kp = (int(kp[0] / scale_factor), int(kp[1] / scale_factor))
                         player_point.append(int_kp)
                     else:
                         player_point.append(player_point[0])
@@ -137,6 +164,14 @@ def draw_player_points(image_input, points, draw_line = False):
         img_copy = cv.line(img_copy, (points[6][0], points[6][1]), (points[12][0], points[12][1]), draw_line_color, draw_line_width)
 
         img_copy = cv.line(img_copy, (points[11][0], points[11][1]), (points[12][0], points[12][1]), draw_line_color, draw_line_width)
+
+        img_copy = cv.line(img_copy, (points[11][0], points[11][1]), (points[13][0], points[13][1]), draw_line_color, draw_line_width)
+        img_copy = cv.line(img_copy, (points[12][0], points[12][1]), (points[14][0], points[14][1]), draw_line_color, draw_line_width)
+
+        img_copy = cv.line(img_copy, (points[13][0], points[13][1]), (points[15][0], points[15][1]), draw_line_color, draw_line_width)
+        img_copy = cv.line(img_copy, (points[14][0], points[14][1]), (points[16][0], points[16][1]), draw_line_color, draw_line_width)
+
+
     
     return img_copy
 
@@ -183,7 +218,7 @@ while True:
     frame = cv.cvtColor(frame, cv.COLOR_BGR2BGRA)
 
     # do every scene
-    read_player_pose(frame)
+    read_player_pose(frame, 0.25)
 
     # render in every scene
     if show_bg == True:
@@ -210,17 +245,48 @@ while True:
         # check if points are in place
         verify_keypoints(player_point)
 
-        frame = cv.putText(frame, "Objective", (50, 240), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        # basic UI
+        frame = cv.putText(frame, "OBJECTIVE", (50, 240), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 224, 255), 2)
         frame = cv.putText(frame, "Take a pose following", (50, 290), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
         frame = cv.putText(frame, "the guide and hold the pose", (50, 330), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
 
-        frame = cv.putText(frame, "Press Z to toggle bg", (50, 400), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        frame = utilities.add_image(frame, z_button, 1630, 185)
+        frame = cv.putText(frame, "Toggle BG", (1700, 220), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
 
+        frame = utilities.add_image(frame, tip_box, 22, 530)
+        frame = cv.putText(frame, "TIP", (50, 600), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 224, 255), 2)
+        frame = cv.putText(frame, "Make sure your body is", (50, 670), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        frame = cv.putText(frame, "visible to the camera", (50, 710), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+
+        # feedback box
+        frame = utilities.add_image(frame, feedback_box, 1470, 300)
+        frame = utilities.add_image(frame, feedback_bar, 1515, 380)
+        frame = utilities.add_image(frame, feedback_bar, 1515, 650)
+
+        frame = cv.putText(frame, "LIVE FEEDBACK", (1510, 360), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        frame = cv.putText(frame, "Elbow L", (1550, 440), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        frame = cv.putText(frame, "Elbow R", (1550, 490), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        frame = cv.putText(frame, "Wrist L", (1550, 540), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        frame = cv.putText(frame, "Wrist R", (1550, 590), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+
+        frame = cv.circle(frame, (1530, 682), 10, (0,255,0), 3)
+        frame = cv.circle(frame, (1640, 682), 10, (0,224,255), 3)
+        frame = cv.circle(frame, (1760, 682), 10, (0,0,255), 3)
+
+        frame = cv.putText(frame, "Good", (1550, 690), cv.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+        frame = cv.putText(frame, "Adjust", (1660, 690), cv.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+        frame = cv.putText(frame, "Poor", (1780, 690), cv.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+
+        # round counter
         if round_counter == -1:
             frame = cv.putText(frame, "Tutorial", (1370, 100), cv.FONT_HERSHEY_SIMPLEX, 1.7, (255, 255, 255), 3)
         else:
             frame = cv.putText(frame, f"Round: {round_counter + 1}/10", (1370, 100), cv.FONT_HERSHEY_SIMPLEX, 1.7, (255, 255, 255), 3)
 
+        outline = utilities.read_image_alpha(f"outlines/{input_name}.png")
+        frame = utilities.add_image(frame, outline, 0, 0)
+
+        # time bar
         if game_timer / timer_reset_to <= 0.16:
             frame = utilities.add_image(frame, timer_sprite[0], timer_x, timer_y)
 
@@ -239,8 +305,21 @@ while True:
         elif game_timer / timer_reset_to <= 1:
             frame = utilities.add_image(frame, timer_sprite[5], timer_x, timer_y)
 
-        outline = utilities.read_image_alpha(f"outlines/{input_name}.png")
-        frame = utilities.add_image(frame, outline, 0, 0)
+        # thumb icon
+        if thumb_frame_timer / thumb_frame_timer_max > 0.8:
+            frame = utilities.add_image(frame, thumb_sprite[0], thumb_x, thumb_y)
+
+        elif thumb_frame_timer / thumb_frame_timer_max > 0.6:
+            frame = utilities.add_image(frame, thumb_sprite[1], thumb_x, thumb_y)
+
+        elif thumb_frame_timer / thumb_frame_timer_max > 0.4:
+            frame = utilities.add_image(frame, thumb_sprite[2], thumb_x, thumb_y)
+
+        elif thumb_frame_timer / thumb_frame_timer_max > 0.2:
+            frame = utilities.add_image(frame, thumb_sprite[3], thumb_x, thumb_y)
+
+        elif thumb_frame_timer / thumb_frame_timer_max > 0:
+            frame = utilities.add_image(frame, thumb_sprite[4], thumb_x, thumb_y)
 
         frame = draw_keypoints(frame)
 
@@ -259,6 +338,8 @@ while True:
             game_timer = 0
             round_counter += 1
 
+            thumb_frame_timer = thumb_frame_timer_max
+
             if round_counter == 10:
                 current_scene = 2
             else:
@@ -268,6 +349,10 @@ while True:
         if input_name_old != input_name:
             read_csv_pose(input_name)
             input_name_old = input_name
+
+        # behind the scene num
+        if thumb_frame_timer > 0:
+            thumb_frame_timer -= 1
 
     elif current_scene == 2:  
         frame = cv.putText(frame, "Congratulation!", (600, 180), cv.FONT_HERSHEY_SIMPLEX, 3, (255, 255, 255), 8)
@@ -281,6 +366,7 @@ while True:
         if button_output == 0:
             current_scene = 1
             round_counter = 0
+            thumb_frame_timer = 0
             refill_bag()
 
             input_name = draw_bag()

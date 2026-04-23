@@ -44,7 +44,7 @@ class button:
         output = -1
 
         for num, i in enumerate(cursor_array):
-            if num >= 5:
+            if num == 9 or num == 10:
                 if i[0] > self.box_x and i[0] < (self.box_x + self.box_width):
                     if i[1] > self.box_y and i[1] < (self.box_y + self.box_height):
                         cursor_in = True
