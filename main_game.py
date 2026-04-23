@@ -218,7 +218,7 @@ while True:
     frame = cv.cvtColor(frame, cv.COLOR_BGR2BGRA)
 
     # do every scene
-    read_player_pose(frame, 0.25)
+    read_player_pose(frame, 0.2)
 
     # render in every scene
     if show_bg == True:
@@ -269,6 +269,11 @@ while True:
         frame = cv.putText(frame, "Wrist L", (1550, 540), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
         frame = cv.putText(frame, "Wrist R", (1550, 590), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
 
+        frame = pose_point[0].draw_point_small(frame, (1520, 432))
+        frame = pose_point[1].draw_point_small(frame, (1520, 482))
+        frame = pose_point[2].draw_point_small(frame, (1520, 532))
+        frame = pose_point[3].draw_point_small(frame, (1520, 582))
+
         frame = cv.circle(frame, (1530, 682), 10, (0,255,0), 3)
         frame = cv.circle(frame, (1640, 682), 10, (0,224,255), 3)
         frame = cv.circle(frame, (1760, 682), 10, (0,0,255), 3)
@@ -279,9 +284,9 @@ while True:
 
         # round counter
         if round_counter == -1:
-            frame = cv.putText(frame, "Tutorial", (1370, 100), cv.FONT_HERSHEY_SIMPLEX, 1.7, (255, 255, 255), 3)
+            frame = cv.putText(frame, "Tutorial", (850, 80), cv.FONT_HERSHEY_SIMPLEX, 1.7, (255, 255, 255), 3)
         else:
-            frame = cv.putText(frame, f"Round: {round_counter + 1}/10", (1370, 100), cv.FONT_HERSHEY_SIMPLEX, 1.7, (255, 255, 255), 3)
+            frame = cv.putText(frame, f"Pose {round_counter + 1} of 10", (850, 80), cv.FONT_HERSHEY_SIMPLEX, 1.7, (255, 255, 255), 3)
 
         outline = utilities.read_image_alpha(f"outlines/{input_name}.png")
         frame = utilities.add_image(frame, outline, 0, 0)
@@ -305,6 +310,8 @@ while True:
         elif game_timer / timer_reset_to <= 1:
             frame = utilities.add_image(frame, timer_sprite[5], timer_x, timer_y)
 
+        frame = draw_keypoints(frame)
+
         # thumb icon
         if thumb_frame_timer / thumb_frame_timer_max > 0.8:
             frame = utilities.add_image(frame, thumb_sprite[0], thumb_x, thumb_y)
@@ -321,13 +328,11 @@ while True:
         elif thumb_frame_timer / thumb_frame_timer_max > 0:
             frame = utilities.add_image(frame, thumb_sprite[4], thumb_x, thumb_y)
 
-        frame = draw_keypoints(frame)
-
         # check if all are in place
         verification = True
 
         for i in pose_point:
-            if i.point_detected == False:
+            if i.point_detected != 1:
                 verification = False
                 break
 
