@@ -27,7 +27,7 @@ class pose_keypoint:
         elif self.point_detected == 0:
             base_image = cv.circle(base_image, coord, 10, (0, 224, 255), 3)
         elif self.point_detected == -1:
-            base_image = cv.circle(base_image, coord, 10, (100,100,255), 3)
+            base_image = cv.circle(base_image, coord, 10, (0,0,255), 3)
 
         return base_image
 

@@ -2,6 +2,7 @@ from ultralytics import YOLO
 import cv2 as cv
 import csv
 import random
+import torch
 from pose_keypoint import pose_keypoint
 from game_utilities import utilities
 from button import button
@@ -12,7 +13,7 @@ from button import button
 
 current_scene = 0 # 0 = start, 1 = main game, 2 = win
 
-timer_reset_to = 20
+timer_reset_to = 40
 game_timer = 0
 round_counter = -1
 
@@ -28,6 +29,7 @@ output_path = "pose_csv/"
 button_output = -1
 
 show_bg = True
+show_outline = True
 
 pose_bag = []
 
@@ -70,7 +72,7 @@ thumb_y = 400
 
 thumb_sprite = []
 thumb_frame_timer = 0
-thumb_frame_timer_max = 5
+thumb_frame_timer_max = 10
 for i in range(5):
     sprite = utilities.read_image_alpha("sprites/thumb.png")
     sprite_partition = int(sprite.shape[1] / 5)
@@ -87,6 +89,9 @@ feedback_bar = cv.resize(feedback_bar, (0, 0), fx = 2.0, fy = 0.5)
 
 z_button = utilities.read_image_alpha("sprites/z_toggle.png")
 z_button = cv.resize(z_button, (0, 0), fx = 0.3, fy = 0.3)
+
+outline_x = 460
+outline_y = 80
 
 # functions -------------------------------------
 
@@ -207,6 +212,7 @@ def draw_bag():
 input_name = 99
 input_name_old = input_name
 read_csv_pose(input_name)
+outline = utilities.read_image_alpha(f"outlines/{input_name}.png")
 
 test = 0
 
@@ -222,7 +228,7 @@ while True:
 
     # render in every scene
     if show_bg == True:
-        frame = utilities.add_image(frame, bg, 0, 0)
+        frame = bg.copy()
 
     if current_scene == 0:
         # rendering
@@ -288,8 +294,8 @@ while True:
         else:
             frame = cv.putText(frame, f"Pose {round_counter + 1} of 10", (850, 80), cv.FONT_HERSHEY_SIMPLEX, 1.7, (255, 255, 255), 3)
 
-        outline = utilities.read_image_alpha(f"outlines/{input_name}.png")
-        frame = utilities.add_image(frame, outline, 0, 0)
+        if show_outline:
+            frame = utilities.add_image(frame, outline, outline_x, outline_y)
 
         # time bar
         if game_timer / timer_reset_to <= 0.16:
@@ -354,6 +360,7 @@ while True:
         if input_name_old != input_name:
             read_csv_pose(input_name)
             input_name_old = input_name
+            outline = utilities.read_image_alpha(f"outlines/{input_name}.png")
 
         # behind the scene num
         if thumb_frame_timer > 0:
@@ -377,6 +384,7 @@ while True:
             input_name = draw_bag()
             input_name_old = input_name
             read_csv_pose(input_name)
+            outline = utilities.read_image_alpha(f"outlines/{input_name}.png")
 
     
     # final touches
@@ -397,6 +405,8 @@ while True:
             input_name += 1
     if key == ord('z'):
         show_bg = not show_bg
+    if key == ord('x'):
+        show_outline = not show_outline
     if key == ord('s'):
         game_timer += 5
     if key == ord('0'):
