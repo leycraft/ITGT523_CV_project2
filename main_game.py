@@ -90,8 +90,8 @@ feedback_bar = cv.resize(feedback_bar, (0, 0), fx = 2.0, fy = 0.5)
 z_button = utilities.read_image_alpha("sprites/z_toggle.png")
 z_button = cv.resize(z_button, (0, 0), fx = 0.3, fy = 0.3)
 
-q_button = utilities.read_image_alpha("sprites/z_toggle.png")
-q_button = cv.resize(z_button, (0, 0), fx = 0.3, fy = 0.3)
+q_button = utilities.read_image_alpha("sprites/q_toggle.png")
+q_button = cv.resize(q_button, (0, 0), fx = 0.3, fy = 0.3)
 
 outline_x = 460
 outline_y = 80
@@ -262,34 +262,37 @@ while True:
         frame = utilities.add_image(frame, z_button, 1630, 185)
         frame = cv.putText(frame, "Toggle BG", (1700, 220), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
 
+        frame = utilities.add_image(frame, q_button, 1630, 285)
+        frame = cv.putText(frame, "Quit game", (1700, 320), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+
         frame = utilities.add_image(frame, tip_box, 22, 530)
         frame = cv.putText(frame, "TIP", (50, 600), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 224, 255), 2)
         frame = cv.putText(frame, "Make sure your body is", (50, 670), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
         frame = cv.putText(frame, "visible to the camera", (50, 710), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
 
         # feedback box
-        frame = utilities.add_image(frame, feedback_box, 1470, 300)
-        frame = utilities.add_image(frame, feedback_bar, 1515, 380)
+        frame = utilities.add_image(frame, feedback_box, 1470, 400)
+        frame = utilities.add_image(frame, feedback_bar, 1515, 480)
         frame = utilities.add_image(frame, feedback_bar, 1515, 650)
 
-        frame = cv.putText(frame, "LIVE FEEDBACK", (1510, 360), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-        frame = cv.putText(frame, "Elbow L", (1550, 440), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-        frame = cv.putText(frame, "Elbow R", (1550, 490), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-        frame = cv.putText(frame, "Wrist L", (1550, 540), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-        frame = cv.putText(frame, "Wrist R", (1550, 590), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        frame = cv.putText(frame, "LIVE FEEDBACK", (1510, 460), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        frame = cv.putText(frame, "Elbow L", (1550, 540), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        frame = cv.putText(frame, "Elbow R", (1550, 590), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        frame = cv.putText(frame, "Wrist L", (1550, 640), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        frame = cv.putText(frame, "Wrist R", (1550, 690), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
 
-        frame = pose_point[0].draw_point_small(frame, (1520, 432))
-        frame = pose_point[1].draw_point_small(frame, (1520, 482))
-        frame = pose_point[2].draw_point_small(frame, (1520, 532))
-        frame = pose_point[3].draw_point_small(frame, (1520, 582))
+        frame = pose_point[0].draw_point_small(frame, (1520, 532))
+        frame = pose_point[1].draw_point_small(frame, (1520, 582))
+        frame = pose_point[2].draw_point_small(frame, (1520, 632))
+        frame = pose_point[3].draw_point_small(frame, (1520, 682))
 
-        frame = cv.circle(frame, (1530, 682), 10, (0,255,0), 3)
-        frame = cv.circle(frame, (1640, 682), 10, (0,224,255), 3)
-        frame = cv.circle(frame, (1760, 682), 10, (0,0,255), 3)
+        frame = cv.circle(frame, (1530, 782), 10, (0,255,0), 3)
+        frame = cv.circle(frame, (1640, 782), 10, (0,224,255), 3)
+        frame = cv.circle(frame, (1760, 782), 10, (0,0,255), 3)
 
-        frame = cv.putText(frame, "Good", (1550, 690), cv.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
-        frame = cv.putText(frame, "Adjust", (1660, 690), cv.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
-        frame = cv.putText(frame, "Poor", (1780, 690), cv.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+        frame = cv.putText(frame, "Good", (1550, 790), cv.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+        frame = cv.putText(frame, "Adjust", (1660, 790), cv.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+        frame = cv.putText(frame, "Poor", (1780, 790), cv.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
 
         # round counter
         if round_counter == -1:
