@@ -2,7 +2,7 @@ from ultralytics import YOLO
 import cv2 as cv
 import csv
 import random
-import torch
+
 from pose_keypoint import pose_keypoint
 from game_utilities import utilities
 from button import button
@@ -67,12 +67,12 @@ for i in range(6):
     sprite = cv.resize(sprite, (0, 0), fx = 0.4, fy = 0.4)
     timer_sprite.append(sprite)
 
-thumb_x = 700
-thumb_y = 400
+thumb_x = 1200
+thumb_y = 20
 
 thumb_sprite = []
 thumb_frame_timer = 0
-thumb_frame_timer_max = 10
+thumb_frame_timer_max = 25
 for i in range(5):
     sprite = utilities.read_image_alpha("sprites/thumb.png")
     sprite_partition = int(sprite.shape[1] / 5)
@@ -89,6 +89,9 @@ feedback_bar = cv.resize(feedback_bar, (0, 0), fx = 2.0, fy = 0.5)
 
 z_button = utilities.read_image_alpha("sprites/z_toggle.png")
 z_button = cv.resize(z_button, (0, 0), fx = 0.3, fy = 0.3)
+
+q_button = utilities.read_image_alpha("sprites/z_toggle.png")
+q_button = cv.resize(z_button, (0, 0), fx = 0.3, fy = 0.3)
 
 outline_x = 460
 outline_y = 80
@@ -237,7 +240,7 @@ while True:
         frame = utilities.add_image(frame, title, 500, 50)
         frame = title_start.draw_box(frame, 700, 300)
 
-        frame = cv.putText(frame, "Stretch Exercise", (580, 180), cv.FONT_HERSHEY_SIMPLEX, 2.7, (0, 0, 0), 8)
+        frame = cv.putText(frame, "StretchMatch ", (650, 180), cv.FONT_HERSHEY_SIMPLEX, 2.7, (0, 0, 0), 8)
         frame = cv.putText(frame, "Start", (800, 380), cv.FONT_HERSHEY_SIMPLEX, 3, (0, 0, 0), 8)
 
         button_output = title_start.detect_cursor(player_point)
@@ -292,9 +295,10 @@ while True:
         if round_counter == -1:
             frame = cv.putText(frame, "Tutorial", (850, 80), cv.FONT_HERSHEY_SIMPLEX, 1.7, (255, 255, 255), 3)
         else:
-            frame = cv.putText(frame, f"Pose {round_counter + 1} of 10", (850, 80), cv.FONT_HERSHEY_SIMPLEX, 1.7, (255, 255, 255), 3)
+            frame = cv.putText(frame, f"Pose {round_counter + 1} of 10", (730, 80), cv.FONT_HERSHEY_SIMPLEX, 1.7, (255, 255, 255), 3)
 
         if show_outline:
+            outline_y = 1080 - outline.shape[0]
             frame = utilities.add_image(frame, outline, outline_x, outline_y)
 
         # time bar
@@ -319,20 +323,20 @@ while True:
         frame = draw_keypoints(frame)
 
         # thumb icon
-        if thumb_frame_timer / thumb_frame_timer_max > 0.8:
-            frame = utilities.add_image(frame, thumb_sprite[0], thumb_x, thumb_y)
+        if thumb_frame_timer / thumb_frame_timer_max > 0.9:
+            frame = utilities.add_image(frame, thumb_sprite[0], thumb_x, thumb_y - 4)
+
+        elif thumb_frame_timer / thumb_frame_timer_max > 0.8:
+            frame = utilities.add_image(frame, thumb_sprite[1], thumb_x, thumb_y - 8)
 
         elif thumb_frame_timer / thumb_frame_timer_max > 0.6:
-            frame = utilities.add_image(frame, thumb_sprite[1], thumb_x, thumb_y)
+            frame = utilities.add_image(frame, thumb_sprite[2], thumb_x, thumb_y - 12)
 
         elif thumb_frame_timer / thumb_frame_timer_max > 0.4:
-            frame = utilities.add_image(frame, thumb_sprite[2], thumb_x, thumb_y)
-
-        elif thumb_frame_timer / thumb_frame_timer_max > 0.2:
-            frame = utilities.add_image(frame, thumb_sprite[3], thumb_x, thumb_y)
+            frame = utilities.add_image(frame, thumb_sprite[3], thumb_x, thumb_y - 16)
 
         elif thumb_frame_timer / thumb_frame_timer_max > 0:
-            frame = utilities.add_image(frame, thumb_sprite[4], thumb_x, thumb_y)
+            frame = utilities.add_image(frame, thumb_sprite[4], thumb_x, thumb_y - 20)
 
         # check if all are in place
         verification = True
